@@ -1,0 +1,21 @@
+.your-popup-class {
+  position: absolute;
+  z-index: 1000;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  padding: 8px;
+  /* Add any other styles you want */
+}
+
+
+.icon-button{
+  width: 16px;
+  height: 16px;
+  position: absolute;
+  z-index: 1000;
+  border: 0;
+  padding: 0;
+  background-size: cover;
+}
+
+

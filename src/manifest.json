@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "Keylance",
+  "version": "1.0",
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": {
+      "16": "subtract.png",
+      "48": "subtract.png",
+      "128": "subtract.png"
+    }
+  },
+  "web_accessible_resources": [
+      {
+        "resources": [
+          "subtract-dark.png"
+        ],
+        "matches": ["<all_urls>"],
+        "extension_ids": ["*"]
+      }
+
+  ],
+  "permissions": ["activeTab"],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["contentScript.js"],
+      "css": ["contentStyles.css"]
+    }
+  ]
+}

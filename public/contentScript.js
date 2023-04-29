@@ -155,7 +155,7 @@ function Popup(fieldType, inputField) {
 
   if (fieldType === "unknown"){
     Object.entries(dataMap).forEach(([fieldType, fieldList])=>{
-      const header = document.createElement('div');
+      const header = document.createElement('p');
       header.innerHTML = fieldType;
       header.style.fontWeight = 'bold';
       popup.appendChild(header);
@@ -170,7 +170,7 @@ function Popup(fieldType, inputField) {
     })
   }
   else{
-    const header = document.createElement('div');
+    const header = document.createElement('p');
     header.innerHTML = fieldType;
     header.style.fontWeight = 'bold';
     popup.appendChild(header);
@@ -196,35 +196,31 @@ function positionPopup(popup, inputField) {
   popup.style.top = rect.top + rect.height + window.pageYOffset + 'px';
 }
 
-/*
----------------------TODO-------------------
-1. Set default password and username.
-2. Test if page is create account page? If yes, then make password recommendations.
-*/
+let activePopup = {
+
+};
 
 
-if(hasLoginForm()){
+if (hasLoginForm()) {
   const inputFields = document.querySelectorAll(`input[type="password"], input[type="text"], input[type="email"]`);
 
   inputFields.forEach((inputField) => {
-
-
     // Setup button for input field
     const button = createButton();
-    button.id = `button-${inputField.id}`
+    button.id = `button-${inputField.id}`;
     positionButton(button, inputField);
     document.body.appendChild(button);
 
-    window.addEventListener('resize', () => {
+    window.addEventListener("resize", () => {
       positionButton(button, inputField);
     });
 
     // Setup autofill suggestion popup
     let popup = Popup(fieldTypeMap[inputField.id], inputField);
-    popup.id = `popup-${inputField.id}`
+    popup.id = `popup-${inputField.id}`;
 
     // Toggle autofill suggestion popup on button click
-    button.addEventListener('click', () => {
+    button.addEventListener("click", () => {
       if(!document.getElementById(popup.id)){
         document.body.appendChild(popup);
       }
@@ -235,21 +231,24 @@ if(hasLoginForm()){
 
     positionPopup(popup, inputField);
 
-    inputField.addEventListener('focus', () => {
-      if(!document.getElementById(popup.id)){
-        document.body.appendChild(popup);
-      }
+    inputField.addEventListener("focus", () => {
+      document.body.appendChild(popup);
     });
 
-    inputField.addEventListener('blur', () => {
-      if(document.getElementById(popup.id)){
-        popup.remove();
-      }
+    inputField.addEventListener("blur", (e) => {
+      popup.remove();
     });
 
-    window.addEventListener('resize', () => {
+    window.addEventListener("resize", () => {
       positionPopup(popup, inputField);
     });
 
+    window.addEventListener("mouseup", (e) => {
+      if (e.target !== popup && e.target.parentNode !== popup && e.target !== inputField) {
+        popup.remove();
+      }
+    });
   });
 }
+
+

@@ -3,18 +3,27 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@heroicons/react": "^2.0.17",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "axios": "^1.4.0",
     "fuse.js": "^6.6.2",
+    "heroicons": "^2.0.17",
+    "js-cookie": "^3.0.5",
+    "jwt-decode": "^3.1.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-icons": "^4.8.0",
+    "react-router-dom": "^6.11.0",
     "react-scripts": "5.0.1",
+    "react-spinners": "^0.13.8",
+    "react-toastify": "^9.1.2",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && cp src/manifest.json build/ && cp src/icons/* build/ && webpack --mode production",
+    "build": "react-scripts build && cp src/manifest.json build/ && cp src/icons/* build/ && cp src/global.css build/ && webpack --mode production",
     "watch": "chokidar 'src/**/*' 'public/**/*' -c 'npm run build'",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -40,8 +49,11 @@
   "devDependencies": {
     "@babel/core": "^7.21.4",
     "@babel/preset-env": "^7.21.4",
+    "autoprefixer": "^10.4.14",
     "babel-loader": "^9.1.2",
     "chokidar-cli": "^3.0.0",
+    "postcss": "^8.4.23",
+    "tailwindcss": "^3.3.2",
     "webpack": "^5.81.0",
     "webpack-cli": "^5.0.2",
     "webpack-extension-reloader": "^1.1.4"

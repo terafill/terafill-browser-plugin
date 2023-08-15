@@ -1,31 +1,32 @@
 {
   "manifest_version": 3,
-  "name": "Keylance",
+  "name": "Terafill",
   "version": "1.0",
   "action": {
+    "default_title": "Terafill: Login faster",
     "default_popup": "index.html",
     "default_icon": {
-      "16": "subtract.png",
-      "48": "subtract.png",
-      "128": "subtract.png"
+      "16": "Logo-mini-derived.png",
+      "48": "Logo-mini-derived.png",
+      "128": "Logo-mini-derived.png"
     }
   },
   "web_accessible_resources": [
       {
         "resources": [
-          "subtract-dark.png"
+          "Logo-mini-derived.png"
         ],
         "matches": ["<all_urls>"],
         "extension_ids": ["*"]
       }
-
   ],
   "permissions": ["activeTab"],
   "content_scripts": [
     {
+      "run_at": "document_idle",
       "matches": ["<all_urls>"],
-      "js": ["contentScript.js"],
-      "css": ["contentStyles.css"]
+      "js": ["cs.js"],
+      "css": ["cs.css"]
     }
   ]
 }

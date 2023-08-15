@@ -1,14 +1,12 @@
 import * as React from "react";
 import { HashRouter, Route, Routes } from "react-router-dom";
 
-
 import LoginPage from "./pages/LoginPage";
-import AppHome, {ItemPanel, ItemPanelIndex} from "./pages/AppHome";
-
+import AppHome, { ItemPanel, ItemPanelIndex } from "./pages/AppHome";
 
 function App() {
   return (
-     <HashRouter>
+    <HashRouter>
       <Routes>
         <Route path="/" element={<LoginPage />} index />
         <Route path="/app-home" element={<AppHome />}>

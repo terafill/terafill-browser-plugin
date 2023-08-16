@@ -70,7 +70,7 @@ function createPopupItem(inputField, itemData){
 }
 
 
-export function createPopup(fieldType, inputField, fieldTypeMap) {
+export function createPopup(fieldType, inputField, fieldTypeMap, itemList) {
 	const popup = document.createElement("div");
 	popup.innerHTML = "";
 	popup.style.backgroundColor = "#1a1a1a";
@@ -86,12 +86,12 @@ export function createPopup(fieldType, inputField, fieldTypeMap) {
 		// 		popup.appendChild(item);
 		// 	});
 		// });
-        targetItemList.map(itemData => {
+        itemList.map(itemData => {
             const item = createPopupItem(inputField, itemData);
             popup.appendChild(item);            
         })
 	} else {
-        targetItemList.map(itemData => {
+        itemList.map(itemData => {
             const item = createPopupItem(inputField, itemData);
             popup.appendChild(item);
 

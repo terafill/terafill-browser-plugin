@@ -5,7 +5,7 @@
     "packages/content"
   ],
   "scripts": {
-    "prepare": "cp public/* build && cp -r packages/popup/build/* build/ && cp manifest.json build/ && cp icons/* build/ && bash ./copy_content_files.sh",
+    "prepare": "cp packages/background/background.js build/ && cp public/* build && cp -r packages/popup/build/* build/ && cp manifest.json build/ && cp icons/* build/ && bash ./copy_content_files.sh",
     "build": "npm run build -w popup && npm run build -w content",
     "watch": "concurrently 'npm run watch -w popup && npm run prepare' 'npm run watch -w content && npm run prepare'"
   },

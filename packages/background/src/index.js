@@ -145,10 +145,24 @@ export function decryptData(cipherTextWithIv, key) {
     return decrypted.toString(CryptoJS.enc.Utf8);
 }
 
-const decryptedItemData = (itemData, keyWrappingKeyPair) => {
+const fetchDataUrl = async (iconUrl) => {
+    const response = await fetch(`http://localhost:8000/api/v1/fetch-image/?url=${encodeURIComponent(iconUrl)}`);
+	const data = await response.json();
+    return data.data_url;
+}
+
+const decryptedItemData = async (itemData, keyWrappingKeyPair) => {
 	const iek = keyWrappingKeyPair.private.decrypt(
 		itemData.encryptedEncryptionKey
 	);
+
+    const iconUrl = `https://cool-rose-moth.faviconkit.com/${decryptData(
+        itemData.website,
+        iek
+    )}/64`
+
+    const iconDataUrl = await fetchDataUrl(iconUrl);
+
 	return {
 		id: itemData.id,
 		title: decryptData(itemData.title, iek),
@@ -156,10 +170,8 @@ const decryptedItemData = (itemData, keyWrappingKeyPair) => {
 		username: decryptData(itemData.username, iek),
 		password: decryptData(itemData.password, iek),
 		iek: iek,
-		icon: `https://cool-rose-moth.faviconkit.com/${decryptData(
-			itemData.website,
-			iek
-		)}/256`,
+		icon: iconUrl,
+        iconDataUrl: iconDataUrl
 	};
 };
 
@@ -187,10 +199,11 @@ const getFullItemList = async () => {
 	for(let idx=0;idx<vaults.length;idx+=1){
 		const data = await getVaultItems(vaults[idx].id);
 		console.log(vaults[idx].id, vaults[idx].name, data);
-		data.forEach((vaultItem)=>{
+        for(let jdx=0;jdx<data.length;jdx+=1){
+            const vaultItem = data[jdx];
 			const keyWrappingKeyPair = getKeyWrappingKeyPair(keyWrappingKey, keyWrappingKeyPublic);
-			itemList.push(decryptedItemData(vaultItem, keyWrappingKeyPair));
-		})
+			itemList.push(await decryptedItemData(vaultItem, keyWrappingKeyPair));
+		}
 	}
 
 	return itemList;

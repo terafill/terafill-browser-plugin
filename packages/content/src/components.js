@@ -28,7 +28,24 @@ export function createButton() {
 	return button;
 }
 
-function createPopupItem(inputField, itemData){
+// async function fetchImageAsDataUrl(url) {
+//     const response = await fetch(url, {
+// 		method: 'GET',
+// 		mode: 'no-cors',
+// 	});
+//     const blob = await response.blob();
+//     return new Promise((resolve, reject) => {
+//         const reader = new FileReader();
+//         reader.onloadend = () => resolve(reader.result);
+//         reader.onerror = reject;
+//         reader.readAsDataURL(blob);
+//     });
+// }
+
+
+
+
+async function createPopupItem(inputField, itemData){
     const item = document.createElement("div");
 
     const itemHeading = document.createElement("div");
@@ -45,16 +62,21 @@ function createPopupItem(inputField, itemData){
     // item.style.fontFamily = "'Inter', sans-serif";
     item.style.display = "flex";
     item.style.flexDirection = "row";
-    item.style.alignItems = "start";
+    item.style.alignItems = "center";
     item.style.padding = "4px 8px";
     item.style.borderRadius = "3px";
     item.style.cursor = "pointer";
 	item.style.gap = "8px";
 
 	const itemIcon = document.createElement("div");
-	console.log("itemData.icon", itemData.icon);
+	// console.log("itemData.icon", itemData.icon);
+
+	// const dataUrl = await fetchImageAsDataUrl(itemData.icon);
+	itemIcon.style.backgroundImage = `url(${itemData.iconDataUrl})`;
+	console.log("itemIcon", itemIcon);
+
 	
-	itemIcon.style.backgroundImage = `url(${itemData.icon})`;
+	// itemIcon.style.backgroundImage = `url(${itemData.icon})`;
 	itemIcon.style.width = "32px";
 	itemIcon.style.height = "32px";
 	itemIcon.style.backgroundSize = "contain"; // ensures the image scales to fit inside the div
@@ -91,7 +113,7 @@ function createPopupItem(inputField, itemData){
 }
 
 
-export function createPopup(fieldType, inputField, fieldTypeMap, itemList) {
+export async function createPopup(fieldType, inputField, fieldTypeMap, itemList) {
 	const popup = document.createElement("div");
 	popup.innerHTML = "";
 	popup.style.backgroundColor = "#1a1a1a";
@@ -107,13 +129,13 @@ export function createPopup(fieldType, inputField, fieldTypeMap, itemList) {
 		// 		popup.appendChild(item);
 		// 	});
 		// });
-        itemList.map(itemData => {
-            const item = createPopupItem(inputField, itemData);
+        itemList.map(async itemData => {
+            const item = await createPopupItem(inputField, itemData);
             popup.appendChild(item);            
         })
 	} else {
-        itemList.map(itemData => {
-            const item = createPopupItem(inputField, itemData);
+        itemList.map(async itemData => {
+            const item = await createPopupItem(inputField, itemData);
             popup.appendChild(item);
 
 			// Change background color on mouse enter (hover)

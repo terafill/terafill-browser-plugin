@@ -59,7 +59,7 @@ setExpoTimeout(
 			console.log("callback response", response);
 			const { itemList } = response;
 			console.log("vault data", itemList);
-			setUpPopup(itemList);
+			await setUpPopup(itemList);
 		});
 		// const response = await new Promise((resolve) => {
 		// 	chrome.runtime.sendMessage({ greeting: "hello" }, resolve);
@@ -99,7 +99,7 @@ function haveSameDomain(url1, url2) {
     return getDomain(url1) === getDomain(url2);
 }
 
-function setUpPopup(itemList){
+async function setUpPopup(itemList){
 	// Show autofill suggestions if login form is present
 	if (hasLoginForm()) {
 		console.log("Login form found!");
@@ -107,7 +107,7 @@ function setUpPopup(itemList){
 			`input[type="password"], input[type="text"], input[type="email"]`
 		);
 
-		inputFields.forEach((inputField) => {
+		inputFields.forEach(async (inputField) => {
 			// Setup button for input field
 			const button = createButton();
 			button.id = `button-${inputField.id}`;
@@ -119,7 +119,7 @@ function setUpPopup(itemList){
 			});
 
 			// Setup autofill suggestion popup
-			let popup = createPopup(
+			const popup = await createPopup(
 				fieldTypeMap[inputField.id],
 				inputField,
 				fieldTypeMap,

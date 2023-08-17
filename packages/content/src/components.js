@@ -44,14 +44,35 @@ function createPopupItem(inputField, itemData){
 
     // item.style.fontFamily = "'Inter', sans-serif";
     item.style.display = "flex";
-    item.style.flexDirection = "column";
+    item.style.flexDirection = "row";
     item.style.alignItems = "start";
     item.style.padding = "4px 8px";
     item.style.borderRadius = "3px";
     item.style.cursor = "pointer";
+	item.style.gap = "8px";
 
-    item.appendChild(itemHeading);
-    item.appendChild(itemLabel);
+	const itemIcon = document.createElement("div");
+	console.log("itemData.icon", itemData.icon);
+	
+	itemIcon.style.backgroundImage = `url(${itemData.icon})`;
+	itemIcon.style.width = "32px";
+	itemIcon.style.height = "32px";
+	itemIcon.style.backgroundSize = "contain"; // ensures the image scales to fit inside the div
+	itemIcon.style.backgroundRepeat = "no-repeat"; // ensures the image doesn't repeat
+	itemIcon.style.backgroundPosition = "center"; // centers the image in the div
+	
+	console.log("itemIcon", itemIcon);
+	
+
+	const itemContent = document.createElement("div");
+	itemContent.style.display = "flex";
+    itemContent.style.flexDirection = "column";
+
+    itemContent.appendChild(itemHeading);
+    itemContent.appendChild(itemLabel);
+
+	item.appendChild(itemIcon);
+	item.appendChild(itemContent);	
 
     item.addEventListener("click", (event) => {
         inputField.value = event.target.textContent;

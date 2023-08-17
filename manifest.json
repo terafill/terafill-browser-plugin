@@ -20,7 +20,8 @@
         "extension_ids": ["*"]
       }
   ],
-  "permissions": ["activeTab", "tabs", "storage", "cookies", "http://0.0.0.0:8000", "runtime"],
+  "permissions": ["activeTab", "tabs", "storage", "cookies"],
+  "host_permissions": ["http://0.0.0.0:8000/"],
   "content_scripts": [
     {
       "run_at": "document_idle",
@@ -30,7 +31,8 @@
     }
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
     }
     
 }

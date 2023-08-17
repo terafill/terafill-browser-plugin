@@ -50,122 +50,6 @@ let setExpoTimeout = function (
 	setTimeout(execute, initialDelay);
 };
 
-
-export const BASE_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:8000/api/v1';
-export const CLIENT_ID = process.env.REACT_APP_CLIENT_ID || 'b980b13c-4db8-4e8a-859c-4544fd70825f';
-
-// const clientId = 'b980b13c-4db8-4e8a-859c-4544fd70825f';
-// const BASE_URL = 'https://keylance-backend-svc-dev.up.railway.app/api/v1'
-
-
-export async function getVaults({sessionId, userId, sessionToken}) {
-	const cookies = `sessionId=${sessionId}; userId=${userId}; sessionToken=${sessionToken}`;
-    const requestUrl = `${BASE_URL}/users/me/vaults`;
-    const config = {
-        withCredentials: true,
-        method: 'get',
-        url: requestUrl,
-        headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            'client-id': CLIENT_ID,
-			Cookie: cookies
-        },
-    };
-
-    try {
-        const response = await axios(config);
-        return response?.data || {};
-    } catch (error) {
-        const errorMessage =
-            error?.response?.data?.detail?.info || `Something went wrong: ${error}.`;
-        throw Error(errorMessage);
-    }
-}
-
-export async function getVaultItems(vaultId) {
-    const requestUrl = `${BASE_URL}/users/me/vaults/${vaultId}/items`;
-    const config = {
-        withCredentials: true,
-        method: 'get',
-        url: requestUrl,
-        headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            'client-id': CLIENT_ID,
-        },
-    };
-
-    try {
-        const response = await axios(config);
-        return response?.data || {};
-    } catch (error) {
-        const errorMessage =
-            error?.response?.data?.detail?.info || `Something went wrong: ${error}.`;
-        throw Error(errorMessage);
-    }
-}
-
-export const getKeyWrappingKeyPair = (keyWrappingKey, keyWrappingKeyPublic) => {
-    return {
-        public: forge.pki.publicKeyFromPem(keyWrappingKeyPublic),
-        private: forge.pki.privateKeyFromPem(keyWrappingKey),
-    };
-};
-
-export function decryptData(cipherTextWithIv, key) {
-    // Convert the base64 string back to a WordArray
-    const concatenated = CryptoJS.enc.Base64.parse(cipherTextWithIv);
-
-    // Split the IV and ciphertext parts
-    const iv = CryptoJS.lib.WordArray.create(concatenated.words.slice(0, 4));
-    const ciphertext = CryptoJS.lib.WordArray.create(concatenated.words.slice(4));
-    const cipherParams = CryptoJS.lib.CipherParams.create({ ciphertext: ciphertext });
-
-    // Decrypt the data
-    const decrypted = CryptoJS.AES.decrypt(cipherParams, CryptoJS.enc.Utf8.parse(key), {
-        mode: CryptoJS.mode.CBC,
-        padding: CryptoJS.pad.Pkcs7,
-        iv: iv,
-    });
-
-    return decrypted.toString(CryptoJS.enc.Utf8);
-}
-
-const decryptedItemData = (itemData, keyWrappingKeyPair) => {
-	const iek = keyWrappingKeyPair.private.decrypt(
-		itemData.encryptedEncryptionKey
-	);
-	return {
-		id: itemData.id,
-		title: decryptData(itemData.title, iek),
-		website: decryptData(itemData.website, iek),
-		username: decryptData(itemData.username, iek),
-		password: decryptData(itemData.password, iek),
-		iek: iek,
-		icon: `https://cool-rose-moth.faviconkit.com/${decryptData(
-			itemData.website,
-			iek
-		)}/256`,
-	};
-};
-
-const getFullItemList = async ({sessionId, userId, sessionToken, keyWrappingKey, keyWrappingKeyPublic}) => {
-	const vaults = await getVaults({sessionId: sessionId, userId: userId, sessionToken: sessionToken});
-	
-	const itemList = [];
-	for(let idx=0;idx<vaults.length;idx+=1){
-		const data = await getVaultItems(vaults[idx].id);
-		console.log(vaults[idx].id, vaults[idx].name, data);
-		data.forEach((vaultItem)=>{
-			const keyWrappingKeyPair = getKeyWrappingKeyPair(keyWrappingKey, keyWrappingKeyPublic);
-			itemList.push(decryptedItemData(vaultItem, keyWrappingKeyPair));
-		})
-	}
-
-	return itemList;
-}
-
 // Usage example:
 setExpoTimeout(
 	async () => {
@@ -173,7 +57,7 @@ setExpoTimeout(
 			greeting: "hello",
 		}, async (response) => {
 			console.log("callback response", response);
-			const itemList = await getFullItemList(response);
+			const { itemList } = response;
 			console.log("vault data", itemList);
 			setUpPopup(itemList);
 		});

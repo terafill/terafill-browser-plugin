@@ -2,10 +2,11 @@
   "name": "keylance-browser-plugin",
   "workspaces": [
     "packages/popup",
-    "packages/content"
+    "packages/content",
+    "packages/background"
   ],
   "scripts": {
-    "prepare": "cp packages/background/background.js build/ && cp public/* build && cp -r packages/popup/build/* build/ && cp manifest.json build/ && cp icons/* build/ && bash ./copy_content_files.sh",
+    "prepare": "bash ./copy_background_files.sh && cp public/* build && cp -r packages/popup/build/* build/ && cp manifest.json build/ && cp icons/* build/ && bash ./copy_content_files.sh",
     "build": "npm run build -w popup && npm run build -w content",
     "watch": "concurrently 'npm run watch -w popup && npm run prepare' 'npm run watch -w content && npm run prepare'"
   },
@@ -16,5 +17,8 @@
   "license": "ISC",
   "devDependencies": {
     "concurrently": "^8.2.0"
+  },
+  "dependencies": {
+    "axios": "^1.4.0"
   }
 }

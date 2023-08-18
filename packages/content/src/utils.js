@@ -15,19 +15,19 @@ export const dataMap = {
 };
 
 export const targetItemList = [
-    {
-        "username":"johndoe@gmail.com",
-        "title": "Facebook"
-    },
-    {
-        "username":"doejohn@rocketmail.com",
-        "title": "Netflix"
-    },
-    {
-        "username":"johndoe1993@gmail.com",
-        "title": "Google"
-    },
-]
+	{
+		username: "johndoe@gmail.com",
+		title: "Facebook",
+	},
+	{
+		username: "doejohn@rocketmail.com",
+		title: "Netflix",
+	},
+	{
+		username: "johndoe1993@gmail.com",
+		title: "Google",
+	},
+];
 
 // Fields metadata
 export const fieldTypes = [
@@ -61,6 +61,19 @@ export const fieldTypes = [
 	},
 ];
 
+// function getDomain(url) {
+//     try {
+//         let parsedUrl = new URL(url);
+//         return parsedUrl.hostname;
+//     } catch (e) {
+//         console.error(`Invalid URL: ${url}`);
+//         return null;
+//     }
+// }
+
+// function haveSameDomain(url1, url2) {
+//     return getDomain(url1) === getDomain(url2);
+// }
 
 const options = {
 	keys: ["keywords"],
@@ -73,7 +86,6 @@ const fuse = new Fuse(fieldTypes, options);
 // Takes <input> html element as input and identify the type of input field.
 // Outputs: ["firstname", "lastname", "password", "confirmpassword"]
 export function identifyFieldType(inputField) {
-    
 	const attributesToCheck = ["name", "id", "class", "type"];
 
 	let bestMatch = { score: Infinity, type: "unknown" };
@@ -118,43 +130,27 @@ export function getFormType(form) {
 	return "login";
 }
 
+export let setExpoTimeout = function (
+	callback,
+	initialDelay,
+	maxDelay,
+	maxRetries = Infinity,
+	runIndefinitely = false
+) {
+	let retries = 0;
 
-export function positionButton(button, inputField) {
-	const rect = inputField.getBoundingClientRect();
-	const horizontalSpacing = 8; // The spacing between the button and the right end of the input field
+	function execute() {
+		if (retries >= maxRetries) {
+			return; // Exit if max retries reached
+		}
 
-	button.style.left =
-		rect.left +
-		window.pageXOffset +
-		rect.width -
-		24 -
-		horizontalSpacing +
-		"px";
-	button.style.top =
-		rect.top + window.pageYOffset + rect.height / 2 - 24 / 2 + "px";
-}
-
-export function positionPopup(popup, inputField) {
-	// Position the popup relative to the input field
-	const rect = inputField.getBoundingClientRect();
-	popup.style.left = rect.left + window.pageXOffset + "px";
-	popup.style.top = rect.top + rect.height + window.pageYOffset + "px";
-}
-
-export function hasLoginForm() {
-	const passwordInputs = document.querySelectorAll('input[type="password"]');
-	const emailInputs = document.querySelectorAll('input[type="email"]');
-	const textInputs = document.querySelectorAll('input[type="text"]');
-
-	// Check if there's at least one password input field.
-	if (passwordInputs.length === 0) {
-		return false;
+		callback();
+		retries++;
+		let nextDelay = Math.min(initialDelay * 2 ** retries, maxDelay);
+		if (runIndefinitely || nextDelay !== maxDelay) {
+			setTimeout(execute, nextDelay);
+		}
 	}
 
-	// Check if there's an email or text input field.
-	if (emailInputs.length === 0 && textInputs.length === 0) {
-		return false;
-	}
-
-	return true;
-}
+	setTimeout(execute, initialDelay);
+};

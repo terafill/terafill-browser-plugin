@@ -1,176 +1,82 @@
-import { dataMap, targetItemList } from "./utils";
+import { useState, useEffect, useRef } from "react";
+import { useButtonPosition, usePopupPosition } from "./hooks";
 
-export function createButton() {
-	const button = document.createElement("button");
-	const icon = document.createElement("img");
-	icon.src = chrome.runtime.getURL("Logo-mini-derived.png");
-    
-	icon.style.width = "80%";
-	icon.style.height = "80%";
-	icon.style.objectFit = "contain"; // Use the correct style syntax
+export function IconButton({ inputField }) {
+	const { top, left } = useButtonPosition(inputField);
+	// const imgSrc = chrome.runtime.getURL("Logo-mini-derived.png");
+	const imgSrc = "./Logo-mini-derived.png";
+	const buttonRef = useRef(null);
 
-	button.style.width = "24px";
-	button.style.height = "24px";
-	button.style.position = "absolute";
-	button.style.display = "flex";
-	button.style.justifyContent = "center";
-	button.style.alignItems = "center";
-
-	button.style.zIndex = 2147483647;
-	// button.style.border = 0.4;
-	button.style.border = "1px solid lightgray";
-	button.style.borderRadius = "5px";
-	button.style.padding = 0;
-	button.style.backgroundColor = "transparent"; // Set the button's background to transparent
-	button.style.cursor = "pointer"; // Change the cursor to a pointer when hovering over the button
-
-	button.appendChild(icon);
-	return button;
+	return (
+		<button
+			ref={buttonRef}
+			id={`button-${inputField.id}`}
+			className="absolute flex items-center justify-center w-6 h-6 border border-gray-300 rounded z-50 cursor-pointer bg-transparent"
+			style={{ top, left }}
+			// onClick={togglePopup}
+		>
+			<img src={imgSrc} className="w-4/5 h-4/5 object-contain" alt="tf" />
+		</button>
+	);
 }
 
-// async function fetchImageAsDataUrl(url) {
-//     const response = await fetch(url, {
-// 		method: 'GET',
-// 		mode: 'no-cors',
-// 	});
-//     const blob = await response.blob();
-//     return new Promise((resolve, reject) => {
-//         const reader = new FileReader();
-//         reader.onloadend = () => resolve(reader.result);
-//         reader.onerror = reject;
-//         reader.readAsDataURL(blob);
-//     });
-// }
+function PopupItem({ inputField, itemData }) {
+	const itemRef = useRef(null);
 
+	// useEffect(()=>{
+	// 	if(itemRef){
+	// 		itemRef.current.addEventListener("blur", ()=>{})
+	// 	}
+	// },[inputField])
 
+	const handleClick = (event) => {
+		console.log("Auto fill didn't ran!");
+		inputField.value = event.target.textContent;
+	};
 
-
-async function createPopupItem(inputField, itemData){
-    const item = document.createElement("div");
-
-    const itemHeading = document.createElement("div");
-    itemHeading.innerHTML = itemData.title;
-    itemHeading.style.fontSize = "16px";
-    itemHeading.style.color = "white";
-
-    const itemLabel = document.createElement("div");
-    itemLabel.innerHTML = itemData.username;
-    itemLabel.style.fontSize = "12px";
-    itemLabel.style.color = "lightgray";
-
-
-    // item.style.fontFamily = "'Inter', sans-serif";
-    item.style.display = "flex";
-    item.style.flexDirection = "row";
-    item.style.alignItems = "center";
-    item.style.padding = "4px 8px";
-    item.style.borderRadius = "3px";
-    item.style.cursor = "pointer";
-	item.style.gap = "8px";
-
-	const itemIcon = document.createElement("div");
-	// console.log("itemData.icon", itemData.icon);
-
-	// const dataUrl = await fetchImageAsDataUrl(itemData.icon);
-	itemIcon.style.backgroundImage = `url(${itemData.iconDataUrl})`;
-	console.log("itemIcon", itemIcon);
-
-	
-	// itemIcon.style.backgroundImage = `url(${itemData.icon})`;
-	itemIcon.style.width = "32px";
-	itemIcon.style.height = "32px";
-	itemIcon.style.backgroundSize = "contain"; // ensures the image scales to fit inside the div
-	itemIcon.style.backgroundRepeat = "no-repeat"; // ensures the image doesn't repeat
-	itemIcon.style.backgroundPosition = "center"; // centers the image in the div
-	
-	console.log("itemIcon", itemIcon);
-	
-
-	const itemContent = document.createElement("div");
-	itemContent.style.display = "flex";
-    itemContent.style.flexDirection = "column";
-
-    itemContent.appendChild(itemHeading);
-    itemContent.appendChild(itemLabel);
-
-	item.appendChild(itemIcon);
-	item.appendChild(itemContent);	
-
-    item.addEventListener("click", (event) => {
-        inputField.value = event.target.textContent;
-    });
-    // Change background color on mouse enter (hover)
-    item.addEventListener("mouseenter", function () {
-        item.style.backgroundColor = "#333333";
-    });
-
-    // Reset background color on mouse leave
-    item.addEventListener("mouseleave", function () {
-        item.style.backgroundColor = ""; // You can set this to the original color if it's not transparent
-    });
-    
-    return item;
+	return (
+		<div
+			className="flex flex-row items-center px-2 py-1 rounded cursor-pointer gap-2 hover:bg-gray-700 transition-colors"
+			onClick={handleClick}
+			// onMouseDown={handleClick}
+		>
+			<img
+				src={itemData.iconDataUrl}
+				className="flex w-8 h-8"
+				alt={itemData.title[0]}
+			/>
+			<div className="flex flex-col">
+				<div className="text-white text-lg">{itemData.title}</div>
+				<div className="text-gray-400 text-sm">{itemData.username}</div>
+			</div>
+		</div>
+	);
 }
 
+export function Popup({ inputField, itemList }) {
+	const popupRef = useRef(null);
+	// const [showPopup, setShowPopup] = useState(false);
+	const { top, left } = usePopupPosition(inputField);
 
-export async function createPopup(fieldType, inputField, fieldTypeMap, itemList) {
-	const popup = document.createElement("div");
-	popup.innerHTML = "";
-	popup.style.backgroundColor = "#1a1a1a";
-    popup.style.zIndex = 9999;
-    popup.style.position = "absolute";
-    popup.style.padding = "12px";
-    popup.style.borderRadius = "5px";
+    // useEffect(() => {
+	// 	if(inputField){
 
-	if (fieldType === "unknown") {
-		// Object.entries(dataMap).forEach(([fieldType, fieldList]) => {
-		// 	fieldList.map((value) => {
-		// 		const item = createPopupItem(inputField, value);
-		// 		popup.appendChild(item);
-		// 	});
-		// });
-        itemList.map(async itemData => {
-            const item = await createPopupItem(inputField, itemData);
-            popup.appendChild(item);            
-        })
-	} else {
-        itemList.map(async itemData => {
-            const item = await createPopupItem(inputField, itemData);
-            popup.appendChild(item);
+	// 	}
+    // }, [inputField, setShowPopup]);
 
-			// Change background color on mouse enter (hover)
-			item.addEventListener("mouseenter", function () {
-				item.style.backgroundColor = "#333333";
-			});
 
-			// Reset background color on mouse leave
-			item.addEventListener("mouseleave", function () {
-				item.style.backgroundColor = ""; // You can set this to the original color if it's not transparent
-			});
-			item.addEventListener("click", (event) => {
-				inputField.value = event.target.textContent;
-			});
-			popup.appendChild(item);
-        })
-		// dataMap[fieldType].forEach((value) => {
-		// 	const item = createPopupItem(inputField, value);
-
-		// 	// Change background color on mouse enter (hover)
-		// 	item.addEventListener("mouseenter", function () {
-		// 		item.style.backgroundColor = "#333333";
-		// 	});
-
-		// 	// Reset background color on mouse leave
-		// 	item.addEventListener("mouseleave", function () {
-		// 		item.style.backgroundColor = ""; // You can set this to the original color if it's not transparent
-		// 	});
-		// 	item.addEventListener("click", (event) => {
-		// 		inputField.value = event.target.textContent;
-		// 	});
-		// 	popup.appendChild(item);
-		// });
-	}
-
-	// popup.classList.add("your-popup-class");
-	return popup;
+	return (
+		<div
+			id={`popup-${inputField.id}`}
+			ref={popupRef}
+			className="bg-gray-900 p-3 rounded absolute z-40"
+			style={{ top, left }}
+		>
+			{itemList.map((itemData) => (
+				<div key={itemData.id} className="mb-2 last:mb-0">
+					<PopupItem inputField={inputField} itemData={itemData} />
+				</div>
+			))}
+		</div>
+	);
 }

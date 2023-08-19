@@ -3,11 +3,10 @@ import { useState, useEffect } from "react";
 export function useButtonPosition(inputField) {
 	const [position, setPosition] = useState({ top: "0px", left: "0px" });
 
-	useEffect(() => {
+	const updatePosition = () => {
 		if (inputField) {
 			const rect = inputField.getBoundingClientRect();
 			const horizontalSpacing = 8;
-
 			const left =
 				rect.left +
 				window.pageXOffset +
@@ -15,12 +14,23 @@ export function useButtonPosition(inputField) {
 				24 -
 				horizontalSpacing +
 				"px";
-
 			const top =
 				rect.top + window.pageYOffset + rect.height / 2 - 24 / 2 + "px";
-
 			setPosition({ top, left });
 		}
+	};
+
+	useEffect(() => {
+		updatePosition();
+
+		window.addEventListener('resize', updatePosition);
+		window.addEventListener('scroll', updatePosition);
+
+		// Clean up listeners when component unmounts
+		return () => {
+			window.removeEventListener('resize', updatePosition);
+			window.removeEventListener('scroll', updatePosition);
+		};
 	}, [inputField]);
 
 	return position;
@@ -29,7 +39,7 @@ export function useButtonPosition(inputField) {
 export function usePopupPosition(inputField) {
 	const [position, setPosition] = useState({ top: 0, left: 0 });
 
-	useEffect(() => {
+	const updatePosition = () => {
 		if (inputField) {
 			const rect = inputField.getBoundingClientRect();
 			setPosition({
@@ -37,10 +47,24 @@ export function usePopupPosition(inputField) {
 				top: rect.top + rect.height + window.pageYOffset,
 			});
 		}
+	};
+
+	useEffect(() => {
+		updatePosition();
+
+		window.addEventListener('resize', updatePosition);
+		window.addEventListener('scroll', updatePosition);
+
+		// Clean up listeners when component unmounts
+		return () => {
+			window.removeEventListener('resize', updatePosition);
+			window.removeEventListener('scroll', updatePosition);
+		};
 	}, [inputField]);
 
 	return position;
 }
+
 
 export function useLoginFormDetector() {
 	const passwordInputs = document.querySelectorAll('input[type="password"]');

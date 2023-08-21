@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useEffect, useRef } from 'react';
 
 import Cookies from 'js-cookie';
@@ -29,6 +30,9 @@ export async function checkUserSession(navigate) {
         cleanupUserSession(navigate);
     } else {
         console.warn('Logged In!');
+    }
+    if(chrome?.runtime.sendMessage){
+        chrome.runtime.sendMessage({ greeting: "hello" })
     }
 }
 

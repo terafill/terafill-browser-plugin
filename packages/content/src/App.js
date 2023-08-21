@@ -5,19 +5,19 @@ import { AutofillGroup } from "./components";
 import { fakeItemList } from "./data";
 import { useAutofillFormState } from "./store";
 
-const getItemList = () => {
+const getItemList = (setLoggedIn) => {
 	return new Promise((resolve, reject) => {
 		if (chrome?.runtime?.sendMessage && process.env.NODE_ENV === "production") {
-			console.log(
-				"chrome?.runtime?.sendMessage",
-				chrome?.runtime?.sendMessage
-			);
 			chrome.runtime.sendMessage({ greeting: "hello" }, (response) => {
-				const { itemList } = response;
-				console.log("vault data", itemList);
+				const { meta, itemList } = response;
+				console.log("vault data", meta, itemList);
 				resolve(itemList);
+				if(meta?.loggedIn){
+					setLoggedIn(true);
+				}
 			});
 		} else {
+			setLoggedIn(true);
 			resolve(fakeItemList);
 		}
 	});
@@ -25,6 +25,7 @@ const getItemList = () => {
 
 function HeadlessApp() {
 	const [itemList, setItemList] = useState([]);
+	const [loggedIn, setLoggedIn] = useState(false);
 
 	const { hasLoginForm } = useLoginFormDetector();
 	const {
@@ -46,10 +47,10 @@ function HeadlessApp() {
 
 	useEffect(() => {
 		console.log("Headless app got mounted");
-		getItemList().then((itemList) => setItemList(itemList));
+		getItemList(setLoggedIn).then((itemList) => setItemList(itemList));
 
 		setInterval(() => {
-			getItemList().then((itemList) => setItemList(itemList));
+			getItemList(setLoggedIn).then((itemList) => setItemList(itemList));
 		}, 10000);
 	}, []);
 
@@ -70,6 +71,7 @@ function HeadlessApp() {
 								updateAutofillGroupState={
 									updateAutofillGroupState
 								}
+								loggedIn={loggedIn}
 							/>
 						</>
 					);

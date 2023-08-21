@@ -100,6 +100,13 @@ export function useInputElements() {
 		return () => observer.disconnect();
 	}, [selector]);
 
+	window.onload = function() {
+		console.log("Everything, including external resources, is loaded");
+		if(inputs){
+			inputs[0].focus();	
+		}
+	};
+
 	return [...inputs];
 }
 

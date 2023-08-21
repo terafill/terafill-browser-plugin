@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 // import * as React from "react";
 // import { HashRouter, Route, Routes } from "react-router-dom";
 
@@ -21,7 +23,7 @@
 // export default App;
 
 
-import React from 'react';
+// import React, { useEffect } from 'react';
 
 // import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { createHashRouter, RouterProvider } from 'react-router-dom';
@@ -112,6 +114,14 @@ const router = createHashRouter([
 ]);
 
 function App() {
+
+    // useEffect(()=>{
+    //     if(chrome?.action?.setBadgeText){
+    //         console.log("Setting the badged icon 🔒")
+    //         chrome.action.setIcon({path: "Padlock6.png"});
+    //         console.log("Badge was set!")  
+    //     }
+    // })
     // const action = useNavigationType();
     // const location = useLocation();
     // const pathname = location.pathname;

@@ -1,4 +1,9 @@
-import { useButtonPosition, usePopupPosition, useInputElements, useAutofillFormEvents } from "./hooks";
+import {
+	useButtonPosition,
+	usePopupPosition,
+	useInputElements,
+	useAutofillFormEvents,
+} from "./hooks";
 
 import { identifyFieldType } from "./utils";
 
@@ -8,6 +13,7 @@ export function AutofillGroup({
 	autofillGroupId,
 	AutofillFormState,
 	updateAutofillGroupState,
+	loggedIn,
 }) {
 	const { top, left } = usePopupPosition(inputField);
 
@@ -19,7 +25,11 @@ export function AutofillGroup({
 	}
 
 	// Set event handlers
-	useAutofillFormEvents(inputField, autofillGroupId, updateAutofillGroupState)
+	useAutofillFormEvents(
+		inputField,
+		autofillGroupId,
+		updateAutofillGroupState
+	);
 
 	// Get active input elements on screen
 	const inputFields = useInputElements();
@@ -74,9 +84,15 @@ export function AutofillGroup({
 						className="w-4/5 h-4/5 object-contain"
 						alt="tf"
 					/>
+					{!loggedIn && (
+						<div className="absolute flex top-[-56px] left-[0px] w-60 bg-gray-900 rounded-md text-gray-200">
+							Press the terafill icon in your browser's toolbar to
+							unlock.
+						</div>
+					)}
 				</button>
 			)}
-			{AutofillFormState[autofillGroupId]?.inputPopup && (
+			{loggedIn && AutofillFormState[autofillGroupId]?.inputPopup && (
 				<div
 					id="input-popup"
 					// ref={popupRef}

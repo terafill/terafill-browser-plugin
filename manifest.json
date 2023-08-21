@@ -6,21 +6,21 @@
     "default_title": "Terafill: Login faster",
     "default_popup": "index.html",
     "default_icon": {
-      "16": "Logo-mini-derived.png",
-      "48": "Logo-mini-derived.png",
-      "128": "Logo-mini-derived.png"
+      "16": "Logo-mini-derived-128.png",
+      "48": "Logo-mini-derived-128.png",
+      "128": "Logo-mini-derived-128.png"
     }
   },
   "web_accessible_resources": [
       {
         "resources": [
-          "Logo-mini-derived.png"
+          "Logo-mini-derived-128.png"
         ],
         "matches": ["<all_urls>"],
         "extension_ids": ["*"]
       }
   ],
-  "permissions": ["activeTab", "tabs", "storage", "cookies"],
+  "permissions": ["action", "browserAction", "activeTab", "tabs", "storage", "cookies"],
   "host_permissions": ["http://0.0.0.0:8000/"],
   "content_scripts": [
     {

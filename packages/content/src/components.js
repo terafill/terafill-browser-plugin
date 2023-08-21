@@ -1,82 +1,27 @@
-import { useState, useEffect, useRef } from "react";
-import { useButtonPosition, usePopupPosition, useInputElements } from "./hooks";
+import { useButtonPosition, usePopupPosition, useInputElements, useAutofillFormEvents } from "./hooks";
 
 import { identifyFieldType } from "./utils";
 
-export function AutofillGroup({ inputField, itemList, autofillGroupId }) {
-	const popupRef = useRef(null);
-	const [showPopup, setShowPopup] = useState(false);
-	const [showButton, setShowButton] = useState(false);
+export function AutofillGroup({
+	inputField,
+	itemList,
+	autofillGroupId,
+	AutofillFormState,
+	updateAutofillGroupState,
+}) {
 	const { top, left } = usePopupPosition(inputField);
 
-	const togglePopup = ()=>{
-		console.log("triggered", showPopup);
-		if(showPopup){
-			setShowPopup(false);
-		}
-		else{
-			setShowPopup(true);
-		}
-		
+	const { top: iconButtonTop, left: iconButtonLeft } =
+		useButtonPosition(inputField);
+	let imgSrc = "./Logo-mini-derived.png";
+	if (chrome?.runtime?.getURL) {
+		imgSrc = chrome.runtime.getURL("Logo-mini-derived.png");
 	}
 
-	const { top: iconButtonTop, left: iconButtonLeft } =
-	useButtonPosition(inputField);
-	const imgSrc = chrome.runtime.getURL("Logo-mini-derived.png");
-	// const imgSrc = "./Logo-mini-derived.png";
+	// Set event handlers
+	useAutofillFormEvents(inputField, autofillGroupId, updateAutofillGroupState)
 
-	useEffect(() => {
-		if (inputField) {
-			function handleInputFieldEvent() {
-				setShowPopup(true);
-				setShowButton(true)
-			}
-
-			function handleClickOutside(event) {
-				if (
-					popupRef.current &&
-					!popupRef.current.contains(event.target) &&
-					!inputField.contains(event.target)
-				) {
-					setShowPopup(false);
-					setShowButton(false);
-				}
-			}
-
-			function handleBlur(event) {
-				setTimeout(() => {
-					setShowPopup(false);
-					setShowButton(false);
-				}, 100);
-			}
-
-			const handleHoverEnable = (e)=>{e.stopPropagation();setShowButton(true)}
-			const handleHoverDisable = (e)=>{e.stopPropagation();setShowButton(false)}
-
-			// Attach the listeners to the inputField and document
-			inputField.addEventListener("focus", handleInputFieldEvent);
-			inputField.addEventListener("click", handleInputFieldEvent);
-			inputField.addEventListener("blur", handleBlur, false);
-			document.addEventListener("click", handleClickOutside, false);
-			inputField.addEventListener('mouseenter', handleHoverEnable);
-			inputField.addEventListener('mouseleave', handleHoverDisable);
-
-			// Cleanup the listeners when the component is unmounted
-			return () => {
-				inputField.removeEventListener("focus", handleInputFieldEvent);
-				inputField.removeEventListener("click", handleInputFieldEvent);
-				inputField.removeEventListener("blur", handleBlur, false);
-				document.removeEventListener(
-					"click",
-					handleClickOutside,
-					false
-				);
-				inputField.removeEventListener('mouseenter', handleHoverEnable);
-				inputField.removeEventListener('mouseleave', handleHoverDisable);
-			};
-		}
-	}, [inputField, setShowPopup]);
-
+	// Get active input elements on screen
 	const inputFields = useInputElements();
 
 	const handleItemClick = (event, itemData) => {
@@ -92,19 +37,37 @@ export function AutofillGroup({ inputField, itemList, autofillGroupId }) {
 				inputField.value = itemData["password"];
 			}
 		});
-		// inputField.value = event.target.textContent;
 	};
 	return (
 		<>
-			{showButton && (
+			{AutofillFormState[autofillGroupId]?.iconButton && (
 				<button
 					id="icon-button"
 					className="absolute flex items-center justify-center w-6 h-6 border border-gray-300 rounded z-50 cursor-pointer bg-transparent"
 					style={{ top: iconButtonTop, left: iconButtonLeft }}
 					data-autofillgroup={autofillGroupId}
-					onClick={(e)=>{e.stopPropagation();togglePopup();}}
-					onMouseEnter={(e)=>{e.stopPropagation();setShowButton(true)}}
-					onMouseLeave={(e)=>{e.stopPropagation();setShowButton(true)}}
+					onClick={(e) => {
+						updateAutofillGroupState(
+							"click",
+							"iconButton",
+							autofillGroupId
+						);
+					}}
+					onMouseEnter={(e) => {
+						updateAutofillGroupState(
+							"mouseenter",
+							"iconButton",
+							autofillGroupId
+						);
+					}}
+					onMouseLeave={(e) => {
+						updateAutofillGroupState(
+							"mouseleave",
+							"iconButton",
+							autofillGroupId
+						);
+						e.stopPropagation();
+					}}
 				>
 					<img
 						src={imgSrc}
@@ -113,10 +76,10 @@ export function AutofillGroup({ inputField, itemList, autofillGroupId }) {
 					/>
 				</button>
 			)}
-			{showPopup && (
+			{AutofillFormState[autofillGroupId]?.inputPopup && (
 				<div
 					id="input-popup"
-					ref={popupRef}
+					// ref={popupRef}
 					className=" bg-gray-900 p-3 rounded absolute z-40"
 					style={{ top, left }}
 					data-autofillgroup={autofillGroupId}

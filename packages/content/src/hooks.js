@@ -23,13 +23,13 @@ export function useButtonPosition(inputField) {
 	useEffect(() => {
 		updatePosition();
 
-		window.addEventListener('resize', updatePosition);
-		window.addEventListener('scroll', updatePosition);
+		window.addEventListener("resize", updatePosition);
+		window.addEventListener("scroll", updatePosition);
 
 		// Clean up listeners when component unmounts
 		return () => {
-			window.removeEventListener('resize', updatePosition);
-			window.removeEventListener('scroll', updatePosition);
+			window.removeEventListener("resize", updatePosition);
+			window.removeEventListener("scroll", updatePosition);
 		};
 	}, [inputField]);
 
@@ -52,13 +52,13 @@ export function usePopupPosition(inputField) {
 	useEffect(() => {
 		updatePosition();
 
-		window.addEventListener('resize', updatePosition);
-		window.addEventListener('scroll', updatePosition);
+		window.addEventListener("resize", updatePosition);
+		window.addEventListener("scroll", updatePosition);
 
 		// Clean up listeners when component unmounts
 		return () => {
-			window.removeEventListener('resize', updatePosition);
-			window.removeEventListener('scroll', updatePosition);
+			window.removeEventListener("resize", updatePosition);
+			window.removeEventListener("scroll", updatePosition);
 		};
 	}, [inputField]);
 
@@ -83,79 +83,71 @@ export function useLoginFormDetector() {
 	return { hasLoginForm: true };
 }
 
-function getParsedInputData(input) {
-
-    const inputData =  {
-        attributes: Array.from(input.attributes).reduce((acc, attribute) => {
-            acc[attribute.name] = attribute.value;
-            return acc;
-        }, {}),
-        associatedLabel: input.labels?.[0]?.textContent || null,
-        placeholder: input.placeholder,
-        parentAttributes: Array.from(input.parentElement.attributes).reduce((acc, attribute) => {
-            acc[attribute.name] = attribute.value;
-            return acc;
-        }, {}),
-    };
-    return inputData;
-}
-
 function isElementVisible(el) {
-	if(!el){
-		return false
+	if (!el) {
+		return false;
 	}
 	// console.log("el", el);
-    // Recursive function to check the visibility and opacity of parent elements
+	// Recursive function to check the visibility and opacity of parent elements
 	function checkParentVisibility(node) {
 		if (!node || node === document.body) return true; // Ensure 'node' is not null or document
 		const style = window.getComputedStyle(node);
-		if (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity) === 0) return false;
+		if (
+			style.display === "none" ||
+			style.visibility === "hidden" ||
+			parseFloat(style.opacity) === 0
+		)
+			return false;
 		return checkParentVisibility(node.parentNode);
-	}	
+	}
 
-    if (!checkParentVisibility(el)) return false;
+	if (!checkParentVisibility(el)) return false;
 
-    const style = window.getComputedStyle(el);
-    if (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity) === 0) return false;
+	const style = window.getComputedStyle(el);
+	if (
+		style.display === "none" ||
+		style.visibility === "hidden" ||
+		parseFloat(style.opacity) === 0
+	)
+		return false;
 
-    const rect = el.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) return false;
+	const rect = el.getBoundingClientRect();
+	if (rect.width === 0 || rect.height === 0) return false;
 
-    const windowHeight = window.innerHeight || document.documentElement.clientHeight;
-    const windowWidth = window.innerWidth || document.documentElement.clientWidth;
-    const vertInView = (rect.top <= windowHeight) && ((rect.top + rect.height) >= 0);
-    const horInView = (rect.left <= windowWidth) && ((rect.left + rect.width) >= 0);
+	const windowHeight =
+		window.innerHeight || document.documentElement.clientHeight;
+	const windowWidth =
+		window.innerWidth || document.documentElement.clientWidth;
+	const vertInView = rect.top <= windowHeight && rect.top + rect.height >= 0;
+	const horInView = rect.left <= windowWidth && rect.left + rect.width >= 0;
 
-    return vertInView && horInView;
+	return vertInView && horInView;
 }
 
-
-
 const isValidInputField = (input) => {
-	// const inputData = getParsedInputData(input);
-	if(isElementVisible(input)){
+	if (isElementVisible(input) && !input.disabled && !input.readOnly) {
 		return true;
 	}
 	return false;
-}
+};
 
-
-const getValidInputs = () =>{
+const getValidInputs = () => {
 	// Filter using input type
-	const inputTypeList = ["password", "text", "email", "number", "tel"] 
+	const inputTypeList = ["password", "text", "email", "number", "tel"];
 	const selector = "".concat(
-		inputTypeList.map(type=>`input[type=${type}]`)
-	)
+		inputTypeList.map((type) => `input[type=${type}]`)
+	);
 	const inputList = [...document.querySelectorAll(selector)];
 	console.log("input.type filtered list: ", inputList);
 
-	const filteredInputtList = inputList.filter(input=>isValidInputField(input));
+	const filteredInputtList = inputList.filter((input) =>
+		isValidInputField(input)
+	);
 
 	console.log("filteredInputtList", filteredInputtList);
 
 	return filteredInputtList;
-}
-
+};
 
 export function useInputElements() {
 	const [inputs, setInputs] = useState(getValidInputs());
@@ -171,18 +163,21 @@ export function useInputElements() {
 		return () => observer.disconnect();
 	}, []);
 
-	window.onload = function() {
+	window.onload = function () {
 		console.log("Everything, including external resources, is loaded");
 		// if(inputs){
-		// 	inputs[0].focus();	
+		// 	inputs[0].focus();
 		// }
 	};
 
 	return inputs;
 }
 
-
-export const useAutofillFormEvents = (inputField, autofillGroupId, updateAutofillGroupState) => {
+export const useAutofillFormEvents = (
+	inputField,
+	autofillGroupId,
+	updateAutofillGroupState
+) => {
 	useEffect(() => {
 		if (inputField) {
 			const handleInputFocusEvent = (e) =>
@@ -249,4 +244,4 @@ export const useAutofillFormEvents = (inputField, autofillGroupId, updateAutofil
 			};
 		}
 	}, [inputField, autofillGroupId, updateAutofillGroupState]);
-}
+};

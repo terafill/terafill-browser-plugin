@@ -38,16 +38,23 @@ export function AutofillGroup({
 	}
 
 	const handleItemClick = (event, itemData) => {
+
+		const fillInput = (inputField, value) => {
+			inputField.value = value
+			inputField.focus();
+			let event = new Event('input', { bubbles: true });
+			inputField.dispatchEvent(event);
+		}
+
+
 		inputFields.forEach((inputField) => {
-			
-			// console.log("fieldType2", fieldType, itemData, itemData[fieldType]);
 			if (fieldType in itemData) {
-				inputField.value = itemData[fieldType];
+				fillInput(inputField, itemData[fieldType]);
 			} else if (
 				fieldType === "confirmpassword" &&
 				"password" in itemData
 			) {
-				inputField.value = itemData["password"];
+				fillInput(inputField, itemData["password"]);
 			} else {
 				console.log("Not autofilled!");
 			}

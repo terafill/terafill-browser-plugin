@@ -11,7 +11,7 @@ export const fieldTypes = [
 			"givenname",
 			"given name",
 			"firstname",
-			"first name"
+			"first name",
 		],
 	},
 	{
@@ -28,8 +28,21 @@ export const fieldTypes = [
 	},
 	{ type: "username", keywords: ["username", "user name"] },
 	{ type: "password", keywords: ["password", "pass", "pwd"] },
-	{ type: "email", keywords: ["email", "mail", "email id", "emailid", "email address", "emailaddress"] },
-	{ type: "phone", keywords: ["phone", "tel", "mobile", "phone number", "cell"] },
+	{
+		type: "email",
+		keywords: [
+			"email",
+			"mail",
+			"email id",
+			"emailid",
+			"email address",
+			"emailaddress",
+		],
+	},
+	{
+		type: "phone",
+		keywords: ["phone", "tel", "mobile", "phone number", "cell"],
+	},
 	{
 		type: "confirmpassword",
 		keywords: [
@@ -38,14 +51,14 @@ export const fieldTypes = [
 			"verify password",
 			"verifypassword",
 			"password again",
-			"passwordagain"
+			"passwordagain",
 		],
 	},
 ];
 
 var keywordsMap = {};
-fieldTypes.forEach(fieldData => {
-	keywordsMap[fieldData.type] = fieldData.keywords
+fieldTypes.forEach((fieldData) => {
+	keywordsMap[fieldData.type] = fieldData.keywords;
 });
 
 // function getDomain(url) {
@@ -70,123 +83,125 @@ const options = {
 
 const fuse = new Fuse(fieldTypes, options);
 
-
 function getInputData(input) {
+	const inputData = {
+		type: input.type,
+		attributes: Array.from(input.attributes).reduce((acc, attribute) => {
+			acc[attribute.name] = attribute.value;
+			return acc;
+		}, {}),
+		computedStyles: (() => {
+			const styles = window.getComputedStyle(input);
+			return {
+				display: styles.display,
+				opacity: styles.opacity,
+				visibility: styles.visibility,
+				width: styles.width,
+				height: styles.height,
+				position: styles.position,
+				left: styles.left,
+				top: styles.top,
+			};
+		})(),
+		associatedLabel: input.labels?.[0]?.textContent || null,
+		placeholder: input.placeholder,
+		parentAttributes: Array.from(input.parentElement.attributes).reduce(
+			(acc, attribute) => {
+				acc[attribute.name] = attribute.value;
+				return acc;
+			},
+			{}
+		),
+		domain: window.location.hostname,
+	};
 
-    const inputData =  {
-        type: input.type,
-        attributes: Array.from(input.attributes).reduce((acc, attribute) => {
-            acc[attribute.name] = attribute.value;
-            return acc;
-        }, {}),
-        computedStyles: (() => {
-            const styles = window.getComputedStyle(input);
-            return {
-                display: styles.display,
-                opacity: styles.opacity,
-                visibility: styles.visibility,
-                width: styles.width,
-                height: styles.height,
-                position: styles.position,
-                left: styles.left,
-                top: styles.top
-            };
-        })(),
-        associatedLabel: input.labels?.[0]?.textContent || null,
-        placeholder: input.placeholder,
-        parentAttributes: Array.from(input.parentElement.attributes).reduce((acc, attribute) => {
-            acc[attribute.name] = attribute.value;
-            return acc;
-        }, {}),
-        domain: window.location.hostname
-    };
-
-    return inputData;
+	return inputData;
 }
-
 
 function textCleaner(text) {
-    if (typeof text !== "string") {
-        return "";
-    }
+	if (typeof text !== "string") {
+		return "";
+	}
 
-    // Keep only alphabets and spaces
-    text = text.replace(/[^a-zA-Z\s]/g, ' ');
+	// Keep only alphabets and spaces
+	text = text.replace(/[^a-zA-Z\s]/g, " ");
 
-    // Replace extra spaces
-    text = text.replace(/\s+/g, ' ');
+	// Replace extra spaces
+	text = text.replace(/\s+/g, " ");
 
-    // Trim leading and trailing spaces
-    return text.trim();
+	// Trim leading and trailing spaces
+	return text.trim();
 }
-
 
 // Takes <input> html element as input and identify the type of input field.
 // Outputs: ["email", "password", "confirmpassword", "username"]
 export function identifyFieldType(inputField) {
+	if (inputField.type === "password") {
+		return "password";
+	} else if (inputField.type === "email") {
+		return "email";
+	} else {
+		const inputData = getInputData(inputField);
 
-	if(inputField.type === "password"){
-		return "password"
-	}
-	else if(inputField.type === "email"){
-		return "email"
-	}
-	else{
-	// let bestMatch = { score: Infinity, type: "unknown" };
+		const cleanedLabel = textCleaner(inputData.associatedLabel);
+		const cleanedPlaceholder = textCleaner(inputData.placeholder);
+		const ariaLabel = textCleaner(inputData.attributes["aria-label"]);
+		const autoComp = textCleaner(inputData.attributes["autocomplete"]);
+		const nameAttr = textCleaner(inputData.attributes["name"]);
+		// // const classAttr = textCleaner(inputData.attributes['class']);
+		// // const parentAutoComp = textCleaner(inputData.parentAttributes['autocomplete']);
+		// // const parentClassAttr = textCleaner(inputData.parentAttributes['class']);
 
-	const inputData = getInputData(inputField);
+		const combinedText = "".concat(
+			cleanedLabel,
+			" ",
+			cleanedPlaceholder,
+			" ",
+			ariaLabel,
+			" ",
+			nameAttr,
+			" ",
+			autoComp
+		);
 
-	const cleanedLabel = textCleaner(inputData.associatedLabel);
-    const cleanedPlaceholder = textCleaner(inputData.placeholder);
-    const ariaLabel = textCleaner(inputData.attributes['aria-label']);
-    const autoComp = textCleaner(inputData.attributes['autocomplete']);
-    const nameAttr = textCleaner(inputData.attributes['name']);
-	// // const classAttr = textCleaner(inputData.attributes['class']);
-    // // const parentAutoComp = textCleaner(inputData.parentAttributes['autocomplete']);
-    // // const parentClassAttr = textCleaner(inputData.parentAttributes['class']);
+		// console.log("combinedText", combinedText);
 
-	const combinedText = "".concat(cleanedLabel, " ", cleanedPlaceholder, " ", ariaLabel, " ", nameAttr, " ", autoComp);
+		let email = false;
+		let password = false;
+		let phone = false;
+		let username = false;
 
-	// console.log("combinedText", combinedText);
+		keywordsMap["email"].forEach((keyword) => {
+			if (combinedText.includes(keyword)) {
+				email = true;
+			}
+		});
 
-	let email = false
-	let password = false
-	let phone = false
-	let username = false
+		keywordsMap["password"].forEach((keyword) => {
+			if (combinedText.includes(keyword)) {
+				password = true;
+			}
+		});
 
-	keywordsMap["email"].forEach(keyword=>{
-		if (combinedText.includes(keyword)) {
-			email = true
+		keywordsMap["phone"].forEach((keyword) => {
+			if (combinedText.includes(keyword)) {
+				phone = true;
+			}
+		});
+
+		keywordsMap["username"].forEach((keyword) => {
+			if (combinedText.includes(keyword)) {
+				username = true;
+			}
+		});
+
+		if (email + username + phone >= 1) {
+			return "username";
+		} else if (password) {
+			return "password";
+		} else {
+			return null;
 		}
-	})
-
-	keywordsMap["password"].forEach(keyword=>{
-		if (combinedText.includes(keyword)) {
-			password = true
-		}
-	})
-
-	keywordsMap["phone"].forEach(keyword=>{
-		if (combinedText.includes(keyword)) {
-			phone = true
-		}
-	})
-
-	keywordsMap["username"].forEach(keyword=>{
-		if (combinedText.includes(keyword)) {
-			username = true
-		}
-	})
-
-	if(email+username+phone>=1){
-		return "username"
-	} else if (password){
-		return "password"
-	}
-	else {
-		return null
-	}
-
 	}
 }
 

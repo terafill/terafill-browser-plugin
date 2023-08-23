@@ -27,7 +27,8 @@ function HeadlessApp() {
 	const [itemList, setItemList] = useState([]);
 	const [loggedIn, setLoggedIn] = useState(false);
 
-	const { hasLoginForm } = useLoginFormDetector();
+	// const { hasLoginForm } = useLoginFormDetector();
+	const hasLoginForm = true;
 	const {
 		AutofillFormState,
 		addAutofillGroupState,
@@ -63,6 +64,7 @@ function HeadlessApp() {
 							<AutofillGroup
 								key={inputField.dataset.autofillgroup}
 								inputField={inputField}
+								inputFields={inputFields}
 								itemList={itemList}
 								autofillGroupId={
 									inputField.dataset.autofillgroup

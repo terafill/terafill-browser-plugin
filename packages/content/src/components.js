@@ -9,6 +9,7 @@ import { identifyFieldType } from "./utils";
 
 export function AutofillGroup({
 	inputField,
+	inputFields,
 	itemList,
 	autofillGroupId,
 	AutofillFormState,
@@ -19,9 +20,9 @@ export function AutofillGroup({
 
 	const { top: iconButtonTop, left: iconButtonLeft } =
 		useButtonPosition(inputField);
-	let imgSrc = "./Logo-mini-derived.png";
+	let imgSrc = "./Logo-mini-derived-128.png";
 	if (chrome?.runtime?.getURL) {
-		imgSrc = chrome.runtime.getURL("Logo-mini-derived.png");
+		imgSrc = chrome.runtime.getURL("./Logo-mini-derived-128.png");
 	}
 
 	// Set event handlers
@@ -31,13 +32,15 @@ export function AutofillGroup({
 		updateAutofillGroupState
 	);
 
-	// Get active input elements on screen
-	const inputFields = useInputElements();
+	let fieldType = identifyFieldType(inputField);
+	if (["email", "phone", "username"].includes(fieldType)) {
+		fieldType = "username";
+	}
 
 	const handleItemClick = (event, itemData) => {
 		inputFields.forEach((inputField) => {
-			const fieldType = identifyFieldType(inputField);
-			console.log(fieldType);
+			
+			// console.log("fieldType2", fieldType, itemData, itemData[fieldType]);
 			if (fieldType in itemData) {
 				inputField.value = itemData[fieldType];
 			} else if (
@@ -45,12 +48,14 @@ export function AutofillGroup({
 				"password" in itemData
 			) {
 				inputField.value = itemData["password"];
+			} else {
+				console.log("Not autofilled!");
 			}
 		});
 	};
 	return (
 		<>
-			{AutofillFormState[autofillGroupId]?.iconButton && (
+			{fieldType && AutofillFormState[autofillGroupId]?.iconButton && (
 				<button
 					id="icon-button"
 					className="absolute flex items-center justify-center w-6 h-6 border border-gray-300 rounded z-50 cursor-pointer bg-transparent"
@@ -92,7 +97,7 @@ export function AutofillGroup({
 					)}
 				</button>
 			)}
-			{loggedIn && AutofillFormState[autofillGroupId]?.inputPopup && (
+			{fieldType && loggedIn && AutofillFormState[autofillGroupId]?.inputPopup && (
 				<div
 					id="input-popup"
 					// ref={popupRef}

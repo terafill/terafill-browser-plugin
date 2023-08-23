@@ -1,65 +1,52 @@
 import Fuse from "fuse.js";
 
-// Fake data
-export const dataMap = {
-	username: ["johndoe", "doejohn", "johndoe93"],
-	firstname: ["John"],
-	lastname: ["Doe"],
-	email: [
-		"johndoe@gmail.com",
-		"doejohn@rocketmail.com",
-		"johndoe1993@gmail.com",
-	],
-	password: ["test@1234", "sample-password"],
-	confirmpassword: ["test@1234", "sample-password"],
-};
-
-export const targetItemList = [
-	{
-		username: "johndoe@gmail.com",
-		title: "Facebook",
-	},
-	{
-		username: "doejohn@rocketmail.com",
-		title: "Netflix",
-	},
-	{
-		username: "johndoe1993@gmail.com",
-		title: "Google",
-	},
-];
-
 // Fields metadata
 export const fieldTypes = [
 	{
 		type: "firstname",
-		keywords: ["first", "name", "given", "firstname", "first_name"],
+		keywords: [
+			"first",
+			"name",
+			"given",
+			"givenname",
+			"given name",
+			"firstname",
+			"first name"
+		],
 	},
 	{
 		type: "lastname",
 		keywords: [
 			"last",
-			"name",
 			"surname",
 			"family",
+			"familyname",
+			"family name",
 			"lastname",
-			"last_name",
+			"last name",
 		],
 	},
-	{ type: "username", keywords: ["user", "name", "login", "username"] },
+	{ type: "username", keywords: ["username", "user name"] },
 	{ type: "password", keywords: ["password", "pass", "pwd"] },
-	{ type: "email", keywords: ["email", "mail"] },
+	{ type: "email", keywords: ["email", "mail", "email id", "emailid", "email address", "emailaddress"] },
+	{ type: "phone", keywords: ["phone", "tel", "mobile", "phone number", "cell"] },
 	{
 		type: "confirmpassword",
 		keywords: [
-			"confirm",
-			"password",
-			"confirm_password",
-			"confirmPassword",
-			"verify",
+			"confirm password",
+			"confirmpassword",
+			"verify password",
+			"verifypassword",
+			"password again",
+			"passwordagain"
 		],
 	},
 ];
+
+var keywordsMap = {};
+fieldTypes.forEach(fieldData => {
+	keywordsMap[fieldData.type] = fieldData.keywords
+});
 
 // function getDomain(url) {
 //     try {
@@ -83,26 +70,124 @@ const options = {
 
 const fuse = new Fuse(fieldTypes, options);
 
+
+function getInputData(input) {
+
+    const inputData =  {
+        type: input.type,
+        attributes: Array.from(input.attributes).reduce((acc, attribute) => {
+            acc[attribute.name] = attribute.value;
+            return acc;
+        }, {}),
+        computedStyles: (() => {
+            const styles = window.getComputedStyle(input);
+            return {
+                display: styles.display,
+                opacity: styles.opacity,
+                visibility: styles.visibility,
+                width: styles.width,
+                height: styles.height,
+                position: styles.position,
+                left: styles.left,
+                top: styles.top
+            };
+        })(),
+        associatedLabel: input.labels?.[0]?.textContent || null,
+        placeholder: input.placeholder,
+        parentAttributes: Array.from(input.parentElement.attributes).reduce((acc, attribute) => {
+            acc[attribute.name] = attribute.value;
+            return acc;
+        }, {}),
+        domain: window.location.hostname
+    };
+
+    return inputData;
+}
+
+
+function textCleaner(text) {
+    if (typeof text !== "string") {
+        return "";
+    }
+
+    // Keep only alphabets and spaces
+    text = text.replace(/[^a-zA-Z\s]/g, ' ');
+
+    // Replace extra spaces
+    text = text.replace(/\s+/g, ' ');
+
+    // Trim leading and trailing spaces
+    return text.trim();
+}
+
+
 // Takes <input> html element as input and identify the type of input field.
-// Outputs: ["firstname", "lastname", "password", "confirmpassword"]
+// Outputs: ["email", "password", "confirmpassword", "username"]
 export function identifyFieldType(inputField) {
-	const attributesToCheck = ["name", "id", "class", "type"];
 
-	let bestMatch = { score: Infinity, type: "unknown" };
+	if(inputField.type === "password"){
+		return "password"
+	}
+	else if(inputField.type === "email"){
+		return "email"
+	}
+	else{
+	// let bestMatch = { score: Infinity, type: "unknown" };
 
-	attributesToCheck.forEach((attr) => {
-		const query = inputField.getAttribute(attr);
-		if (!query) return;
+	const inputData = getInputData(inputField);
 
-		const lowercaseQuery = query.toLowerCase();
-		const result = fuse.search(lowercaseQuery);
+	const cleanedLabel = textCleaner(inputData.associatedLabel);
+    const cleanedPlaceholder = textCleaner(inputData.placeholder);
+    const ariaLabel = textCleaner(inputData.attributes['aria-label']);
+    const autoComp = textCleaner(inputData.attributes['autocomplete']);
+    const nameAttr = textCleaner(inputData.attributes['name']);
+	// // const classAttr = textCleaner(inputData.attributes['class']);
+    // // const parentAutoComp = textCleaner(inputData.parentAttributes['autocomplete']);
+    // // const parentClassAttr = textCleaner(inputData.parentAttributes['class']);
 
-		if (result.length > 0 && result[0].score < bestMatch.score) {
-			bestMatch = { score: result[0].score, type: result[0].item.type };
+	const combinedText = "".concat(cleanedLabel, " ", cleanedPlaceholder, " ", ariaLabel, " ", nameAttr, " ", autoComp);
+
+	// console.log("combinedText", combinedText);
+
+	let email = false
+	let password = false
+	let phone = false
+	let username = false
+
+	keywordsMap["email"].forEach(keyword=>{
+		if (combinedText.includes(keyword)) {
+			email = true
 		}
-	});
+	})
 
-	return bestMatch.type;
+	keywordsMap["password"].forEach(keyword=>{
+		if (combinedText.includes(keyword)) {
+			password = true
+		}
+	})
+
+	keywordsMap["phone"].forEach(keyword=>{
+		if (combinedText.includes(keyword)) {
+			phone = true
+		}
+	})
+
+	keywordsMap["username"].forEach(keyword=>{
+		if (combinedText.includes(keyword)) {
+			username = true
+		}
+	})
+
+	if(email+username+phone>=1){
+		return "username"
+	} else if (password){
+		return "password"
+	}
+	else {
+		return null
+	}
+
+	}
 }
 
 // Takes <form> html element as input and checks if a form is of type login or signup

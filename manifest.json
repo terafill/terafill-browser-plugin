@@ -2,12 +2,17 @@
   "manifest_version": 3,
   "name": "Terafill",
   "version": "1.0",
+  "icons": {
+    "16": "Logo-mini-derived-16.png",
+    "48": "Logo-mini-derived-48.png",
+    "128": "Logo-mini-derived-128.png"
+  },  
   "action": {
     "default_title": "Terafill: Login faster",
     "default_popup": "index.html",
     "default_icon": {
-      "16": "Logo-mini-derived-128.png",
-      "48": "Logo-mini-derived-128.png",
+      "16": "Logo-mini-derived-16.png",
+      "48": "Logo-mini-derived-48.png",
       "128": "Logo-mini-derived-128.png"
     }
   },

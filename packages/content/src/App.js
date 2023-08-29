@@ -1,18 +1,23 @@
 import { useEffect, useState } from "react";
 
-import { useInputElements, useLoginFormDetector } from "./hooks";
+// import { useLoginFormDetector } from "./hooks";
 import { AutofillGroup } from "./components";
 import { fakeItemList } from "./data";
 import { useAutofillFormState } from "./store";
+import usePopupLoginDetector from "./hooks/usePopupLoginDetector";
+import useInputElements from "./hooks/useInputElements";
 
 const getItemList = (setLoggedIn) => {
 	return new Promise((resolve, reject) => {
-		if (chrome?.runtime?.sendMessage && process.env.NODE_ENV === "production") {
+		if (
+			chrome?.runtime?.sendMessage &&
+			process.env.NODE_ENV === "production"
+		) {
 			chrome.runtime.sendMessage({ greeting: "hello" }, (response) => {
 				const { meta, itemList } = response;
 				console.log("vault data", meta, itemList);
 				resolve(itemList);
-				if(meta?.loggedIn){
+				if (meta?.loggedIn) {
 					setLoggedIn(true);
 				}
 			});
@@ -24,8 +29,20 @@ const getItemList = (setLoggedIn) => {
 };
 
 function HeadlessApp() {
+	console.log("Rendering headless app");
 	const [itemList, setItemList] = useState([]);
 	const [loggedIn, setLoggedIn] = useState(false);
+
+	const callback = (response) =>{
+		const { meta, itemList } = response;
+		// resolve(itemList);
+		setItemList(itemList);
+		if (meta?.loggedIn) {
+			setLoggedIn(true);
+		}
+	}
+
+	usePopupLoginDetector({ callback: callback });
 
 	// const { hasLoginForm } = useLoginFormDetector();
 	const hasLoginForm = true;
@@ -34,9 +51,10 @@ function HeadlessApp() {
 		addAutofillGroupState,
 		updateAutofillGroupState,
 	} = useAutofillFormState();
+
 	const inputFields = useInputElements();
 
-	// console.log(AutofillFormState);
+	console.log("Got inputFields", inputFields);
 
 	inputFields.forEach((inputField, idx) => {
 		const groupId = `${inputField.id}-afg${idx}`;
@@ -50,15 +68,21 @@ function HeadlessApp() {
 		console.log("Headless app got mounted");
 		getItemList(setLoggedIn).then((itemList) => setItemList(itemList));
 
-		setInterval(() => {
+		const intervalId = setInterval(() => {
 			getItemList(setLoggedIn).then((itemList) => setItemList(itemList));
-		}, 10000);
+		}, 30000);
+
+		// Cleanup function
+		return () => {
+			clearInterval(intervalId);
+		};
 	}, []);
 
 	return (
 		<>
 			{hasLoginForm &&
 				inputFields.map((inputField) => {
+					// console.warn("Processing input fields: ", inputField);
 					return (
 						<>
 							<AutofillGroup

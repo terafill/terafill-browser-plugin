@@ -25,6 +25,14 @@ const LoginPage = () => {
             // console.log("This is not getting triggered");
             storeAuthData(userData.email, userData.password, response.keyWrappingKey);
             toast.success('Login successful');
+            chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+                const currentTab = tabs[0];
+                
+                // Send a message to the content script
+                chrome.tabs.sendMessage(currentTab.id, {"message": "popup_script_login_trigger"});
+                console.warn("Message sent to tab");
+
+            });
             navigate('/app/home');
         }
     };

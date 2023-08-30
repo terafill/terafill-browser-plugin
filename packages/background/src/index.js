@@ -1,6 +1,6 @@
 /* eslint-disable */
 // background.js
-import axios from "axios";
+// import axios from "axios";
 // import httpAdapter from 'axios/lib/adapters/http';
 
 // axios.defaults.adapter = httpAdapter;
@@ -10,59 +10,12 @@ import forge from "node-forge";
 
 console.log("background.js is running again!");
 
-export const BASE_URL = "http://localhost:8000/api/v1";
-export const CLIENT_ID = "b980b13c-4db8-4e8a-859c-4544fd70825f";
+// export const BASE_URL = "http://localhost:8000/api/v1";
+// export const CLIENT_ID = "b980b13c-4db8-4e8a-859c-4544fd70825f";
 
-// const clientId = 'b980b13c-4db8-4e8a-859c-4544fd70825f';
-// const BASE_URL = 'https://keylance-backend-svc-dev.up.railway.app/api/v1'
+const CLIENT_ID = 'b980b13c-4db8-4e8a-859c-4544fd70825f';
+const BASE_URL = 'https://dev.api.terafill.com/api/v1'
 
-// export async function getVaults({sessionId, userId, sessionToken}) {
-// 	const cookies = `sessionId=${sessionId}; userId=${userId}; sessionToken=${sessionToken}`;
-//     const requestUrl = `${BASE_URL}/users/me/vaults`;
-//     const config = {
-//         withCredentials: true,
-//         method: 'get',
-//         url: requestUrl,
-//         headers: {
-//             'Content-Type': 'application/json',
-//             Accept: 'application/json',
-//             'client-id': CLIENT_ID,
-// 			Cookie: cookies
-//         },
-//     };
-
-//     try {
-//         const response = await axios(config);
-//         return response?.data || {};
-//     } catch (error) {
-//         const errorMessage =
-//             error?.response?.data?.detail?.info || `Something went wrong: ${error}.`;
-//         throw Error(errorMessage);
-//     }
-// }
-
-// export async function getVaultItems(vaultId) {
-//     const requestUrl = `${BASE_URL}/users/me/vaults/${vaultId}/items`;
-//     const config = {
-//         withCredentials: true,
-//         method: 'get',
-//         url: requestUrl,
-//         headers: {
-//             'Content-Type': 'application/json',
-//             Accept: 'application/json',
-//             'client-id': CLIENT_ID,
-//         },
-//     };
-
-//     try {
-//         const response = await axios(config);
-//         return response?.data || {};
-//     } catch (error) {
-//         const errorMessage =
-//             error?.response?.data?.detail?.info || `Something went wrong: ${error}.`;
-//         throw Error(errorMessage);
-//     }
-// }
 
 export async function getVaults({ sessionId, userId, sessionToken }) {
 	const cookies = `sessionId=${sessionId}; userId=${userId}; sessionToken=${sessionToken}`;
@@ -158,7 +111,7 @@ export function decryptData(cipherTextWithIv, key) {
 
 const fetchDataUrl = async (iconUrl) => {
 	const response = await fetch(
-		`http://localhost:8000/api/v1/fetch-image/?url=${encodeURIComponent(
+		`${BASE_URL}/fetch-image?url=${encodeURIComponent(
 			iconUrl
 		)}`
 	);

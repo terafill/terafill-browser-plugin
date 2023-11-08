@@ -151,8 +151,8 @@ const initiateLogin = async (
 	};
 	try {
 		const response = await axios(config);
-        storeCookies("userId", response.data.userId);
-        storeCookies("sessionId", response.data.sessionId);
+		storeCookies("userId", response.data.userId);
+		storeCookies("sessionId", response.data.sessionId);
 		return UserAuthResponse.initiateLogin.read.parse(response.data);
 	} catch (error) {
 		if (isAxiosError(error)) {
@@ -190,7 +190,7 @@ const confirmLogin = async (email: string, clientProof: string) => {
 	};
 	try {
 		const response = await axios(config);
-        storeCookies("sessionToken", response.data.sessionToken);
+		storeCookies("sessionToken", response.data.sessionToken);
 
 		return UserAuthResponse.confirmLogin.read.parse(response.data);
 	} catch (error) {
@@ -265,15 +265,7 @@ export const loginUser = async (email: string, password: string) => {
 	}
 };
 
-// const fetchCookie = async (key) => {
-// 	return await chrome.storage.session.get(key);
-// };
-
 export const getLoginStatus = async () => {
-    // const sessionId = fetchCookie('sessionId');
-    // const userId = fetchCookie('userId');
-    // const sessionToken = fetchCookie('sessionToken');
-    // const cookies = `sessionId=${sessionId}; userId=${userId}; sessionToken=${sessionToken}`;
 	try {
 		const config = {
 			withCredentials: true,
@@ -282,14 +274,11 @@ export const getLoginStatus = async () => {
 			headers: {
 				"Content-Type": "application/json",
 				Accept: "application/json",
-                // Cookie: cookies
+				// Cookie: cookies
 			},
 		};
-        
+
 		const response = await axios(config);
-        // Cookies.set("sessionId", sessionId);
-        // Cookies.set("userId", userId);
-        // Cookies.set("sessionToken", sessionToken);
 		return UserAuthResponse.getLoginStatus.read.parse(response?.data);
 	} catch (error) {
 		if (isAxiosError(error)) {
